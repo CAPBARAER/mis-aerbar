@@ -1,1 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Misas Capilla T2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: sans-serif; padding: 20px; }
+#lista p { font-size: 1.2em; }
+button { padding: 10px; margin: 5px 0; font-size: 1.1em; }
+</style>
+</head>
+<body>
 
+<h1>⛪ Capilla Terminal 2</h1>
+<p>Misas previstas para hoy y próximos días:</p>
+
+<div id="lista"></div>
+
+<script>
+// Cargar misas
+async function cargar() {
+  const r = await fetch('misas.json?' + Date.now());
+  const misas = await r.json();
+
+  document.getElementById('lista').innerHTML = misas.map(m =>
+    `<p><b>${m.fecha}</b> — ${m.hora}<br>${m.nota || ''}</p>
+     <a href="calendario.html?fecha=${m.fecha}&hora=${m.hora}&nota=${encodeURIComponent(m.nota || '')}">
+       ➕ Añadir al calendario
+     </a><hr>`
+  ).join('');
+}
+cargar();
+
+// Notificaciones en tiempo real
+const sse = new EventSource('../events.js?capilla=T2');
+
+sse.onmessage = () => {
+  alert('🔔 Nueva misa añadida en Capilla T2');
+  cargar();
+};
+</script>
+
+</body>
+</html>
