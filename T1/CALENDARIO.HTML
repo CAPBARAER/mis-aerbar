@@ -1,31 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Descargar evento - Misa T1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: sans-serif; padding: 20px; }
+a { color: #0066cc; text-decoration: none; }
+a:hover { text-decoration: underline; }
+</style>
+</head>
 <body>
+<h1>📅 Descargar evento</h1>
+<p>Si no se descargó automáticamente, pulsa aquí:</p>
+
 <script>
 const url = new URL(window.location.href);
 const fecha = url.searchParams.get("fecha");
 const hora = url.searchParams.get("hora");
 const nota = url.searchParams.get("nota") || "Misa en Capilla T1";
 
-const dt = fecha + " " + hora;
-
-// Crear enlace iCal
 const ical = 
-  "BEGIN:VCALENDAR\n" +
+  "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CAPBARAER//Misas Capilla T1//ES\n" +
   "BEGIN:VEVENT\n" +
   "SUMMARY:" + nota + "\n" +
   "DTSTART:" + fecha.replace(/-/g,'') + "T" + hora.replace(':','') + "00\n" +
+  "DTEND:" + fecha.replace(/-/g,'') + "T" + (parseInt(hora.split(':')[0]) + 1) + "0000\n" +
   "END:VEVENT\n" +
   "END:VCALENDAR";
 
 const blob = new Blob([ical], {type: 'text/calendar'});
 const link = URL.createObjectURL(blob);
 
-// Abrir descarga automática
 window.location = link;
 </script>
 
-<p>Si no se descargó automáticamente, pulsa aquí:</p>
-<a href="#" onclick="window.location=link">Descargar evento</a>
+<a href="#" onclick="window.location=link">📥 Descargar evento iCal</a>
 </body>
 </html>
