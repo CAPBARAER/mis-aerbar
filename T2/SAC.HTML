@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Publicar misa (T2)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: sans-serif; padding: 20px; }
+input, textarea { width: 100%; padding: 10px; margin: 10px 0; }
+button { padding: 15px; width: 100%; font-size: 1.2em; }
+</style>
+</head>
+<body>
 
+<h1>✝️ Registrar misa — Terminal 2</h1>
+
+<label>Fecha</label>
+<input type="date" id="fecha">
+
+<label>Hora</label>
+<input type="time" id="hora">
+
+<label>Nota opcional (celebrante, idioma, etc.)</label>
+<textarea id="nota"></textarea>
+
+<button onclick="publicar()">Publicar misa</button>
+
+<p id="ok"></p>
+
+<script>
+async function publicar() {
+  const fecha = document.getElementById('fecha').value;
+  const hora = document.getElementById('hora').value;
+  const nota = document.getElementById('nota').value;
+
+  if (!fecha || !hora) {
+    alert("Por favor completa fecha y hora.");
+    return;
+  }
+
+  const r = await fetch('misas.json');
+  const misas = await r.json();
+
+  misas.push({ fecha, hora, nota });
+
+  await fetch('misas.json', {
+    method: 'PUT',
+    body: JSON.stringify(misas),
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  // Notificar a fieles
+  fetch('../events.js?capilla=T1&nueva=true');
+
+  document.getElementById('ok').innerHTML =
+    "✔️ Misa T2 publicada correctamente";
+}
+</script>
+
+</body>
+</html>
