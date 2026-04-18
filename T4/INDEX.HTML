@@ -7,7 +7,7 @@
 <style>
 body { font-family: sans-serif; padding: 20px; }
 #lista p { font-size: 1.2em; }
-button { padding: 10px; margin: 5px 0; font-size: 1.1em; }
+#ultima-actualizacion { color: #999; font-size: 0.9em; }
 </style>
 </head>
 <body>
@@ -17,28 +17,44 @@ button { padding: 10px; margin: 5px 0; font-size: 1.1em; }
 
 <div id="lista"></div>
 
+<p id="ultima-actualizacion"></p>
+
 <script>
-// Cargar misas
+let ultimaCarga = 0;
+
 async function cargar() {
-  const r = await fetch('misas.json?' + Date.now());
-  const misas = await r.json();
-
-  document.getElementById('lista').innerHTML = misas.map(m =>
-    `<p><b>${m.fecha}</b> — ${m.hora}<br>${m.nota || ''}</p>
-     <a href="calendario.html?fecha=${m.fecha}&hora=${m.hora}&nota=${encodeURIComponent(m.nota || '')}">
-       ➕ Añadir al calendario
-     </a><hr>`
-  ).join('');
+  try {
+    const storage = localStorage.getItem('misas-T4');
+    let misas = storage ? JSON.parse(storage) : [];
+    
+    if (misas.length === 0) {
+      const r = await fetch('misas.json?' + Date.now());
+      if (r.ok) {
+        misas = await r.json();
+        localStorage.setItem('misas-T4', JSON.stringify(misas));
+      }
+    }
+    
+    const html = misas.length ? misas.map((m, idx) =>
+      `<p><b>${m.fecha}</b> — ${m.hora}<br><small>${m.nota || ''}</small></p>
+       <a href="calendario.html?fecha=${m.fecha}&hora=${m.hora}&nota=${encodeURIComponent(m.nota || '')}">
+         ➕ Añadir al calendario
+       </a><hr>`
+    ).join('') : '<p style="color: #999;">No hay misas registradas</p>';
+    
+    document.getElementById('lista').innerHTML = html;
+    document.getElementById('ultima-actualizacion').textContent = 
+      'Última actualización: ' + new Date().toLocaleTimeString('es-ES');
+    ultimaCarga = Date.now();
+  } catch(e) {
+    console.error('Error cargando misas:', e);
+    document.getElementById('lista').innerHTML = 
+      '<p style="color: red;">Error al cargar misas. Intenta recargar la página.</p>';
+  }
 }
+
 cargar();
-
-// Notificaciones en tiempo real
-const sse = new EventSource('../events.js?capilla=T1');
-
-sse.onmessage = () => {
-  alert('🔔 Nueva misa añadida en Capilla T4');
-  cargar();
-};
+setInterval(cargar, 300000);
 </script>
 
 </body>
