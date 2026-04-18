@@ -38,22 +38,35 @@ async function publicar() {
     return;
   }
 
-  const r = await fetch('misas.json');
-  const misas = await r.json();
+  try {
+    let misas = [];
+    const r = await fetch('misas.json');
+    if (r.ok) {
+      misas = await r.json();
+    }
 
-  misas.push({ fecha, hora, nota });
+    misas.push({ fecha, hora, nota, creada: new Date().toISOString() });
 
-  await fetch('misas.json', {
-    method: 'PUT',
-    body: JSON.stringify(misas),
-    headers: { 'Content-Type': 'application/json' }
-  });
+    localStorage.setItem('misas-T2', JSON.stringify(misas));
 
-  // Notificar a fieles
-  fetch('../events.js?capilla=T1&nueva=true');
+    try {
+      await fetch('misas.json', {
+        method: 'PUT',
+        body: JSON.stringify(misas, null, 2),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } catch (e) {
+      console.warn('PUT a misas.json no disponible. Usando localStorage.');
+    }
 
-  document.getElementById('ok').innerHTML =
-    "✔️ Misa T2 publicada correctamente";
+    localStorage.setItem('notif-T2', Date.now().toString());
+
+    document.getElementById('ok').innerHTML =
+      "✔️ Misa T2 publicada correctamente";
+  } catch(e) {
+    console.error('Error:', e);
+    alert('Error al publicar misa. Intenta de nuevo.');
+  }
 }
 </script>
 
