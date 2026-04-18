@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "fecha": "2026-04-19",
+    "hora": "09:00",
+    "nota": "Misa de domingo - Celebrante: Padre García"
+  },
+  {
+    "fecha": "2026-04-19",
+    "hora": "18:00",
+    "nota": "Misa vespertina - En español"
+  }
+]
