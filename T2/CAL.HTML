@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+const url = new URL(window.location.href);
+const fecha = url.searchParams.get("fecha");
+const hora = url.searchParams.get("hora");
+const nota = url.searchParams.get("nota") || "Misa en Capilla T2";
+
+const dt = fecha + " " + hora;
+
+// Crear enlace iCal
+const ical = 
+  "BEGIN:VCALENDAR\n" +
+  "BEGIN:VEVENT\n" +
+  "SUMMARY:" + nota + "\n" +
+  "DTSTART:" + fecha.replace(/-/g,'') + "T" + hora.replace(':','') + "00\n" +
+  "END:VEVENT\n" +
+  "END:VCALENDAR";
+
+const blob = new Blob([ical], {type: 'text/calendar'});
+const link = URL.createObjectURL(blob);
+
+// Abrir descarga automática
+window.location = link;
+</script>
+
+<p>Si no se descargó automáticamente, pulsa aquí:</p>
+<a href="#" onclick="window.location=link">Descargar evento</a>
+</body>
+</html>
